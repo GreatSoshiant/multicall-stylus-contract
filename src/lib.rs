@@ -29,7 +29,7 @@ impl MultiCall {
         let addr_len  = addresses.len();
         let data_len  = data.len();
         let mut results: Vec<Bytes> = Vec::new();         
-        if addr_len == data_len {
+        if addr_len != data_len {
             return Err(ArraySize::ArraySizeNotMatch(ArraySizeNotMatch{}));
         }
         for i in 0..addr_len{
