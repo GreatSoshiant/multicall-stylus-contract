@@ -4,6 +4,7 @@ extern crate alloc;
 #[global_allocator]
 static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
 
+use alloy_primitives::U256;
 use alloy_sol_types::sol;
 use stylus_sdk::{abi::Bytes, alloy_primitives::Address, call::RawCall, prelude::*};
 
@@ -14,7 +15,7 @@ pub struct MultiCall;
 // Declare events and Solidity error types
 sol! {
     error ArraySizeNotMatch();
-    error CallFailed();
+    error CallFailed(uint256 call_index);
 }
 
 #[derive(SolidityError)]
@@ -41,7 +42,7 @@ impl MultiCall {
                 RawCall::new().call(addresses[i], data[i].to_vec().as_slice());
             let data = match result {
                 Ok(data) => data,
-                Err(_data) => return Err(MultiCallErrors::CallFailed(CallFailed {})),
+                Err(_data) => return Err(MultiCallErrors::CallFailed(CallFailed { call_index: U256::from(i) })),
             };
             results.push(data.into())
         }
