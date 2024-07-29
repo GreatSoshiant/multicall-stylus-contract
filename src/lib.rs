@@ -38,14 +38,10 @@ impl MultiCall {
             return Err(MultiCallErrors::ArraySizeNotMatch(ArraySizeNotMatch {}));
         }
         for i in 0..addr_len {
-            let result: Result<Vec<u8>, Vec<u8>> =
-                RawCall::new().call(addresses[i], data[i].to_vec().as_slice());
-            let data = match result {
-                Ok(data) => data,
-                Err(_data) => return Err(MultiCallErrors::CallFailed(CallFailed { call_index: U256::from(i) })),
-            };
-            results.push(data.into())
-        }
+            let result = RawCall::new().call(addresses[i], data[i].to_vec().as_slice())
+                .map_err(|_| MultiCallErrors::CallFailed(CallFailed { call_index: U256::from(i) }))?;
+            results.push(result.into());
+}
         Ok(results)
     }
 }
